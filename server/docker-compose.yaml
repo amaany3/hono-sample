@@ -1,0 +1,28 @@
+services:
+  postgres:
+    image: postgres:15.6-alpine3.19
+    container_name: hono-postgres
+    environment:
+      POSTGRES_DB: hono
+      POSTGRES_USER: hono
+      POSTGRES_PASSWORD: pgpass
+    volumes:
+      - hono-postgres-volume:/var/lib/postgresql/data
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
+      - ./seed.sql:/docker-entrypoint-initdb.d/seed.sql
+    configs:
+      - source: init.sql
+        target: /docker-entrypoint-initdb.d/init.sql
+    ports:
+      - "5432:5432"
+    networks:
+      - hono-network
+networks:
+  hono-network:
+    name: hono-network
+volumes:
+  hono-postgres-volume:
+configs:
+  init.sql:
+    content: |
+      CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
